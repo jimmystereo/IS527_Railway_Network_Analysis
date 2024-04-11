@@ -1,8 +1,9 @@
-import pandas as pd
-import networkx as nx
 import copy
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
+import networkx as nx
+import pandas as pd
+
 # Read the edge dataset
 edge_df = pd.read_csv('data/NTAD_North_American_Rail_Network_Lines_Passenger_Rail.csv')
 print(edge_df.shape)
@@ -10,13 +11,18 @@ print(edge_df.shape)
 print(edge_df.shape)
 edge_df = edge_df.drop_duplicates(subset=['FRFRANODE', 'TOFRANODE'], keep='first').reset_index(drop=True)
 print(edge_df.shape)
+# edge_df.loc[edge_df['OBJECTID']==308556,'TOFRANODE'] = 335062
+edge_df.loc[edge_df['OBJECTID']==308829,'FRFRANODE'] = 334415
+# edge_df.loc[edge_df['OBJECTID']==307006,'TOFRANODE'] = 334351
+
 
 # Read the station dataset
-node_df = pd.read_csv('data/NTAD_North_American_Rail_Network_Nodes.csv')
+# node_df = pd.read_csv('data/NTAD_North_American_Rail_Network_Nodes.csv')
+node_df = pd.read_csv('data/station_data_cleaned.csv') # merged dataset from merge.py
 print(node_df.shape)
 node_df = node_df[(node_df['PASSNGR'].isin(['A', 'B']))] # Get the Amtrak Station
 relabel = {
-    335464:335453, #Helper
+    335464:335453, # Helper
     352445:352446, # San Antonio
     354415:354413, # San Marcos
     357218:357219, # Taylor
@@ -26,7 +32,7 @@ relabel = {
     378195:378160, # Texarkana
     395727:395736, # Greenwood
     431778:431782, # Cincinnati
-    445007: 445193, # Port Huron
+    445007:445193, # Port Huron
     466120:465762, # Latrobe
     467787:	467652 # Johnstown
 }
@@ -53,7 +59,7 @@ print('n', len(G.nodes))
 
 # simplify the tracks, merge connected inter-tracks
 G2 = G.copy()
-while len(set(G2.nodes) - set(stations)) >126: # keep starting over till all edges are merged (there are 126 nodes that don't connected to any station)
+while len(set(G2.nodes) - set(stations)) >127: # keep starting over till all edges are merged (there are 126 nodes that don't connected to any station)
     edges_list = copy.deepcopy(G2.edges)
     for edge in edges_list:
         try:
@@ -63,7 +69,9 @@ while len(set(G2.nodes) - set(stations)) >126: # keep starting over till all edg
                 nx.contracted_edge(G2, (edge[0], edge[1]), copy=False, self_loops=False)
             elif edge[0] not in stations and edge[1] in stations:
                 nx.contracted_edge(G2, (edge[1], edge[0]), copy=False, self_loops=False)
+                # print('success')
         except:
+            # print('failed')
             continue
     print(len(set(G2.nodes) - set(stations)), 'redundant remaining')
 
@@ -79,22 +87,22 @@ name = {}
 for i in G2.nodes:
     t = node_df[node_df['FRANODEID'] == i]
     position[i] = (t['x'].values[0], t['y'].values[0])
-    name[i] = t['PASSNGRSTN'].values[0]
+    name[i] = t['Station'].values[0]
 
-    attr[i] = {"x": t['x'].values[0], "y": t['y'].values[0], "state":t['STATE'].values[0], "name":t['PASSNGRSTN'].values[0]}
+    attr[i] = {"x": t['x'].values[0], "y": t['y'].values[0], "state":t['State'].values[0], "name":t['Station'].values[0], 'ridership':t['ridership'].values[0]}
 
-    # for j in G2.nodes:
-    #     if i==j:
-    #         continue
-    #     try:
-    #         distance_dict[(i,j)] = nx.shortest_path_length(G, source=i, target=j, weight='KM')
-    #     except:
-    #         distance_dict[(i,j)] = np.inf
+    for j in G2.nodes:
+        if i==j or (i, j) not in G2.edges:
+            continue
+        try:
+            distance_dict[(i,j)] = nx.shortest_path_length(G, source=i, target=j, weight='KM')
+        except:
+            distance_dict[(i,j)] = np.inf
+nd = {}
+for i in distance_dict:
+    nd[i] = {'KM': distance_dict[i]}
 nx.set_node_attributes(G2, attr)
-nx.get_node_attributes(G2,'x')
-
-# nx.set_edge_attributes(G2, distance_dict, "KM")
-# nx.get_edge_attributes(G2,'KM')
+nx.set_edge_attributes(G2, nd)
 
 set(stations) - set(G2.nodes)
 print("=== Original data ===")
@@ -107,13 +115,16 @@ print('k', G2.degree)
 sorted(G2.degree)
 sorted([i[1] for i in G2.degree])
 for i in G2.degree:
-    if i[1] == 0:
+    if i[1] == 5:
         print(i)
 
 d = [i[1] for i in G2.degree]
 sorted(d,reverse=False)
 plt.hist(d)
-node_df[node_df['FRANODEID']==480266]
+plt.show()
+node_df[node_df['FRANODEID']==321401]
+node_df[node_df['PASSNGRSTN']=='Provo Central Station']
+
 len(stations)
 sorted([i[1] for i in G.degree], reverse=True)
 # pos2 = nx.spring_layout(G, seed=42)
@@ -121,17 +132,19 @@ plt.figure(figsize=(30, 18))
 
 nx.draw_networkx(G2, pos=position, with_labels=True, labels=name)
 plt.title('US Railway Network')
-plt.savefig('network.png')
-
-node_df['PASSNGR'].value_counts()
+plt.savefig('plots/network.png')
 
 
 
 import _pickle as cPickle
-with open(r"graph.pickle", "wb") as output_file:
+with open(r"graphs/graph_fixed.pickle", "wb") as output_file:
     cPickle.dump(G2, output_file)
 
 
+node_df[node_df['FRANODEID']==315438]
 
 
 
+#%%
+node_df[node_df['FRANODEID']==321401]
+nx.get_node_attributes(G2, 'ridership')
