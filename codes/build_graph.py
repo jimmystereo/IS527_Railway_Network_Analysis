@@ -12,8 +12,15 @@ print(edge_df.shape)
 edge_df = edge_df.drop_duplicates(subset=['FRFRANODE', 'TOFRANODE'], keep='first').reset_index(drop=True)
 print(edge_df.shape)
 # edge_df.loc[edge_df['OBJECTID']==308556,'TOFRANODE'] = 335062
-edge_df.loc[edge_df['OBJECTID']==308829,'FRFRANODE'] = 334415
+edge_df.loc[edge_df['OBJECTID']==308829,'FRFRANODE'] = 334415 # Helper
 # edge_df.loc[edge_df['OBJECTID']==307006,'TOFRANODE'] = 334351
+# edge_df.loc[edge_df['OBJECTID']==298719,'TOFRANODE'] = 494929  # Boston
+# edge_df.loc[edge_df['OBJECTID']==79606,'TOFRANODE'] = 494929  # Boston
+edge_df.loc[edge_df['OBJECTID']==338923,'TOFRANODE'] = 495049  # Boston
+edge_df.loc[edge_df['OBJECTID']==79176,'TOFRANODE'] = 495049  # Boston
+edge_df.loc[edge_df['OBJECTID']==79175,'TOFRANODE'] = 495049  # Boston
+edge_df.loc[edge_df['OBJECTID']==315490,'TOFRANODE'] = 495049  # Boston
+edge_df.loc[edge_df['OBJECTID']==315290,'TOFRANODE'] = 495049  # Boston
 
 
 # Read the station dataset
@@ -59,7 +66,7 @@ print('n', len(G.nodes))
 
 # simplify the tracks, merge connected inter-tracks
 G2 = G.copy()
-while len(set(G2.nodes) - set(stations)) >127: # keep starting over till all edges are merged (there are 126 nodes that don't connected to any station)
+while len(set(G2.nodes) - set(stations)) >129: # keep starting over till all edges are merged (there are 126 nodes that don't connected to any station)
     edges_list = copy.deepcopy(G2.edges)
     for edge in edges_list:
         try:
@@ -141,10 +148,5 @@ with open(r"graphs/graph_fixed.pickle", "wb") as output_file:
     cPickle.dump(G2, output_file)
 
 
-node_df[node_df['FRANODEID']==315438]
+node_df[node_df['FRANODEID']==495049]
 
-
-
-#%%
-node_df[node_df['FRANODEID']==321401]
-nx.get_node_attributes(G2, 'ridership')

@@ -104,6 +104,13 @@ plt.ylabel('Betweenness centrality, c')
 plt.title('Betweenness centrality of the network')
 
 
+## average_shortest_path_length
+print(nx.average_shortest_path_length(G, weight = 'KM'))
+
+nx.is_connected(G)
+for i in nx.connected_components(G):
+    print(i)
+
 import _pickle as cPickle
 with open(r"graphs/graph_fixed_attr.pickle", "wb") as output_file:
     cPickle.dump(G, output_file)
