@@ -21,6 +21,8 @@ edge_df.loc[edge_df['OBJECTID']==79176,'TOFRANODE'] = 495049  # Boston
 edge_df.loc[edge_df['OBJECTID']==79175,'TOFRANODE'] = 495049  # Boston
 edge_df.loc[edge_df['OBJECTID']==315490,'TOFRANODE'] = 495049  # Boston
 edge_df.loc[edge_df['OBJECTID']==315290,'TOFRANODE'] = 495049  # Boston
+edge_df.loc[edge_df['OBJECTID']==333011,'TOFRANODE'] = 448147  # Spartanburg
+edge_df.loc[edge_df['OBJECTID']==74688,'FRFRANODE'] = 492597  # Spartanburg
 
 
 # Read the station dataset
@@ -65,10 +67,15 @@ print('n', len(G.nodes))
 
 
 # simplify the tracks, merge connected inter-tracks
-G2 = G.copy()
+G2 = copy.deepcopy(G)
+
+# Sort the edge list based on the sum of the node IDs at each end of the edge
+
 while len(set(G2.nodes) - set(stations)) >129: # keep starting over till all edges are merged (there are 126 nodes that don't connected to any station)
     edges_list = copy.deepcopy(G2.edges)
-    for edge in edges_list:
+    sorted_edge_list = sorted(edges_list, key=lambda x: sum(x[:2]))
+
+    for edge in sorted_edge_list:
         try:
             if edge[0] not in stations and edge[1] not in stations:
                 nx.contracted_edge(G2, (edge[1], edge[0]), copy=False, self_loops=False)
@@ -82,9 +89,44 @@ while len(set(G2.nodes) - set(stations)) >129: # keep starting over till all edg
             continue
     print(len(set(G2.nodes) - set(stations)), 'redundant remaining')
 
+# simplify the tracks, merge connected inter-tracks
+G3 = copy.deepcopy(G)
+
+# Sort the edge list based on the sum of the node IDs at each end of the edge
+
+while len(set(G3.nodes) - set(stations)) >129: # keep starting over till all edges are merged (there are 126 nodes that don't connected to any station)
+    edges_list = copy.deepcopy(G3.edges)
+    sorted_edge_list = sorted(edges_list, key=lambda x: sum(x[:2]), reverse=True)
+
+    for edge in sorted_edge_list:
+        try:
+            if edge[0] not in stations and edge[1] not in stations:
+                nx.contracted_edge(G3, (edge[1], edge[0]), copy=False, self_loops=False)
+            elif edge[0] in stations and edge[1] not in stations:
+                nx.contracted_edge(G3, (edge[0], edge[1]), copy=False, self_loops=False)
+            elif edge[0] not in stations and edge[1] in stations:
+                nx.contracted_edge(G3, (edge[1], edge[0]), copy=False, self_loops=False)
+                # print('success')
+        except:
+            # print('failed')
+            continue
+    print(len(set(G3.nodes) - set(stations)), 'redundant remaining')
+
+# Create a new graph for the sum
+G_sum = nx.Graph()
+
+# Add edges from G1 to G_sum
+G_sum.add_edges_from(G2.edges())
+
+# Add edges from G2 to G_sum
+G_sum.add_edges_from(G3.edges())
+
+G2 = G_sum
+
 # Remove the 126 nodes that are not connected to any stations
 G2.remove_nodes_from(set(set(G2.nodes) - set(stations)))
-
+# G2.add_edge(497523,497525)
+# G2.add_edge(497525,497527)
 ## Set length
 distance = nx.shortest_path_length(G, weight='KM')
 distance_dict = {}
@@ -137,7 +179,8 @@ sorted([i[1] for i in G.degree], reverse=True)
 # pos2 = nx.spring_layout(G, seed=42)
 plt.figure(figsize=(30, 18))
 
-nx.draw_networkx(G2, pos=position, with_labels=True, labels=name)
+# nx.draw_networkx(G2, pos=position, with_labels=False, labels=name)
+nx.draw_networkx_edges(G2, pos=position)
 plt.title('US Railway Network')
 plt.savefig('plots/network.png')
 
@@ -148,5 +191,12 @@ with open(r"graphs/graph_fixed.pickle", "wb") as output_file:
     cPickle.dump(G2, output_file)
 
 
-node_df[node_df['FRANODEID']==495049]
+node_df[node_df['FRANODEID']==465725]
+node_df[node_df['FRANODEID']==465762]
+
+node_df[node_df['Station']=='Dallas, Texas']
+node_df[node_df['Station']=='Houston, Texas']
+import math
+math.sqrt((-84.392836 + 81.148882)**2 + (33.799112 - 32.083369)**2)
+math.sqrt((-96.808093 + 95.367769)**2 + (32.775818 - 29.767695)**2)
 

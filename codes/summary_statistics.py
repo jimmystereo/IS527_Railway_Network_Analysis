@@ -24,21 +24,21 @@ print('Clustering Coefficient: ', round(cc,2))
 
 G = G.to_undirected()
 ## eigenvector_centrality
-centrality = nx.eigenvector_centrality(G)
-nx.set_node_attributes(G, {i:{'eigenvector_centrality': centrality[i]} for i in centrality})
+# centrality = nx.eigenvector_centrality(G)
+# nx.set_node_attributes(G, {i:{'eigenvector_centrality': centrality[i]} for i in centrality})
 k = []
 for i in G.degree:
     k.append(i[1]/m)
-fig, ax = plt.subplots()
-c = [centrality[i] for i in centrality.keys()]
-ax.scatter(k, c)
+# fig, ax = plt.subplots()
+# c = [centrality[i] for i in centrality.keys()]
+# ax.scatter(k, c)
 n = nx.get_node_attributes(G,'name')
 n = [n[i] for i in n]
-for i, txt in enumerate(n):
-    ax.annotate(txt, (k[i], c[i]))
-plt.xlabel('normalized degree, k/m')
-plt.ylabel('eigenvector centrality, x')
-plt.title('Eigenvector Centrality')
+# for i, txt in enumerate(n):
+#     ax.annotate(txt, (k[i], c[i]))
+# plt.xlabel('normalized degree, k/m')
+# plt.ylabel('eigenvector centrality, x')
+# plt.title('Eigenvector Centrality')
 # plt.savefig('network_KM.png')
 
 ## PageRank
