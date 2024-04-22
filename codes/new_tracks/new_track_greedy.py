@@ -29,7 +29,7 @@ def normalize(x, max, min):
 def calculate_metrics(args):
     node_pair, G, x, y = args
     i, j = node_pair
-    # track_length = nx.shortest_path_length(G, source=i, target=j, weight='KM')
+    track_length = nx.shortest_path_length(G, source=i, target=j, weight='KM')
     G.add_edge(i, j)
     new_efficiency = nx.global_efficiency(G)
     # local_efficiency = nx.local_efficiency(G)
@@ -80,7 +80,6 @@ def add_track(store, Graph, step, top_edges):
     for i, j in normalized_store.keys():
         distance = normalized_store[(i, j)]["distance"]
         coefficient = (store[(i,j)]["new_efficiency"]**2 - (ridership[i]*ridership[j]))/distance
-
         normalized_store[(i, j)]['coefficient'] = coefficient
 
     # Print or use sorted_store as needed

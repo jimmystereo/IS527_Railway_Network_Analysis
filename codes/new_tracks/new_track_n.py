@@ -56,7 +56,7 @@ for n in G.nodes():
     avg_neighbor_ridership[n] = ridership_n
 efficiency = nx.global_efficiency(G)
 beta =1
-alpha = 0.5
+alpha = 0.1
 degrees = dict(nx.degree(G))
 for i,j in store.keys():
     # delta_efficiency = efficiency-store[(i,j)]["new_efficiency"]
@@ -67,8 +67,8 @@ for i,j in store.keys():
     # coefficient = store[(i,j)]["cluster_efficiency"]**alpha*(track_length/distance)**beta
     # coefficient = store[(i,j)]["local_efficiency"]*avg_neighbor_ridership[i]*avg_neighbor_ridership[j]*(track_length/distance)**beta
     # coefficient = store[(i,j)]["local_efficiency"] - alpha*(ridership[i]*ridership[j])
-    coefficient = (store[(i,j)]["new_efficiency"]**2 - (ridership[i]*ridership[j]))/distance
-    # coefficient = (store[(i,j)]["new_efficiency"]*store[(i,j)]["cluster_efficiency"] - alpha*(ridership[i]*ridership[j]))
+    # coefficient = (store[(i,j)]["track_length"] - alpha*(ridership[i]+ridership[j]))/distance
+    coefficient = (store[(i,j)]["new_efficiency"]**2- alpha*(ridership[i]*ridership[j]))
     # coefficient = (store[(i,j)]["cluster_efficiency"]*store[(i,j)]["cluster_efficiency"] - alpha*(ridership[i]*ridership[j]))/distance
     # coefficient = store[(i,j)]["local_efficiency"]*store[(i,j)]["local_efficiency"] - alpha*(ridership[i]*ridership[j])
     # coefficient = store[(i,j)]["new_efficiency"]*(track_length/distance)**beta
@@ -96,13 +96,12 @@ low = df['distance'].quantile(.01)
 # df = df[df['track_length'] < df['track_length'].quantile(.2)]
 top_df = df.sort_values(by = 'coefficient', ascending = False).reset_index(drop = True)
 
-while c <=50:
+while c <=10:
     i+=1
     tops = top_df.loc[i,['node1','node2']]
     node1 = int(tops["node1"])
     node2 = int(tops["node2"])
     if (node1, node2) in G2.edges:
-        print(node1, node2)
         continue
     G2.add_edge(node1,node2)
     top_edges.append((node1,node2))
@@ -122,7 +121,6 @@ labels = {node: name[node] for node in G2.nodes}
 plt.figure(figsize=(150, 90))
 for edge in G2.edges():
     if (edge[0], edge[1]) in top_edges or (edge[1], edge[0]) in top_edges:  # Check if the edge is the one you added
-        print(edge)
         nx.draw_networkx_edges(G2, pos, edgelist=[edge], edge_color='red', width=2.0)  # Set color to red for the added edge
     else:
         nx.draw_networkx_edges(G2, pos, edgelist=[edge], width=1.0)  # Use default color for other edges
@@ -165,3 +163,12 @@ with open(r"../graphs/new_track.pickle", "wb") as output_file:
 # for edge in G2.edges():
 #     if (edge[0], edge[1]) in top_edges or (edge[1], edge[0]) in top_edges:  # Check if the edge is the one you added
 #         print(edge)
+#
+# G2 = G2.to_undirected()
+# simple_G = nx.Graph(G2)
+# edge_betweeness = nx.edge_betweenness_centrality(simple_G, weight='KM')[(497445,497516)]
+# for i in edge_betweeness:
+#     if i == (497445, 497516):
+#         print(1)
+#     elif i == :
+#         print(2)
