@@ -6,7 +6,7 @@ import copy
 
 with open(r"graphs/graph_fixed_attr.pickle", "rb") as input_file:
     G = cPickle.load(input_file)
-with open(r"graphs/new_track.pickle", "rb") as input_file:
+with open(r"graphs/new_track2.pickle", "rb") as input_file:
     G2 = cPickle.load(input_file)
 
 # Targeted attack - G

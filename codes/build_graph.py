@@ -186,9 +186,9 @@ plt.savefig('plots/network.png')
 
 
 
-import _pickle as cPickle
-with open(r"graphs/graph_fixed.pickle", "wb") as output_file:
-    cPickle.dump(G2, output_file)
+# import _pickle as cPickle
+# with open(r"graphs/graph_fixed.pickle", "wb") as output_file:
+#     cPickle.dump(G2, output_file)
 
 
 node_df[node_df['FRANODEID']==465725]
@@ -199,4 +199,6 @@ node_df[node_df['Station']=='Houston, Texas']
 import math
 math.sqrt((-84.392836 + 81.148882)**2 + (33.799112 - 32.083369)**2)
 math.sqrt((-96.808093 + 95.367769)**2 + (32.775818 - 29.767695)**2)
+
+
 

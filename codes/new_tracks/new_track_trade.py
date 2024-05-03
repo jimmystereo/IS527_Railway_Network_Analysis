@@ -97,7 +97,7 @@ for n in G.nodes():
     avg_neighbor_ridership[n] = ridership_n
 efficiency = nx.global_efficiency(G)
 beta =1
-alpha = 0.1
+alpha = 1
 degrees = dict(nx.degree(G))
 for i,j in store.keys():
     # delta_efficiency = efficiency-store[(i,j)]["new_efficiency"]
@@ -213,6 +213,6 @@ if True:
     plt.show()
 
     # import _pickle as cPickle
-with open(r"../files/iterations/efficiency_1tracks.pickle", "wb") as output_file:
+with open(r"../files/iterations/efficiency_1tracks_rider_1.pickle", "wb") as output_file:
     cPickle.dump(iterations, output_file)
 
